@@ -12,7 +12,7 @@
                 <!-- Цветовая тема  -->
                 <materialDesign:BundledTheme 
                     BaseTheme="Light"
-                    PrimaryColor="DeepPurple"
+                    PrimaryColor="Pink"
                     SecondaryColor="Lime" />
 
                 <!-- Главный файл стилей -->

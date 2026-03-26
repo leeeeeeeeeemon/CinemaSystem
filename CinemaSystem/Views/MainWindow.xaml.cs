@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using CinemaSystem.Pages;
+using CinemaSystem.Views.Pages;
 
 
 namespace CinemaSystem.Views
@@ -10,7 +11,7 @@ namespace CinemaSystem.Views
     {
         public MainWindow()
         {
-            InitializeComponent();   // ← Обязательно первым!
+            InitializeComponent();   
 
             // Устанавливаем начальное состояние после загрузки XAML
             if (MenuListBox != null)
@@ -75,8 +76,8 @@ namespace CinemaSystem.Views
         {
             MessageBox.Show("Автоматизированная система кинотеатра «StarLight»\n\n" +
                             "Тема курсовой: Разработка автоматизированной системы кинотеатра\n" +
-                            "Выполнил: [Ваше ФИО полностью]\n" +
-                            "Группа: [Ваша группа]\n" +
+                            "Выполнил: Барышев Эмиль Евгеньевич\n" +
+                            "Группа: 831-21\n" +
                             "2026 год\n\n" +
                             "Система включает базу фильмов, сеансов, кинозалов, посетителей с бонусной картой и скидками.",
                             "О программе", MessageBoxButton.OK, MessageBoxImage.Information);
