@@ -1,14 +1,77 @@
-﻿<Page x:Class="CinemaSystem.Pages.SessionsPage"
+﻿<!-- Views/Pages/SessionsPage.xaml -->
+<Page x:Class="CinemaSystem.Views.Pages.SessionsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:CinemaSystem.Pages"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="SessionsPage">
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      Title="Сеансы"
+      Background="{DynamicResource MaterialDesignPaper}">
 
-    <Grid>
-        
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Панель управления -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+            <TextBlock Text="Расписание сеансов" 
+                       FontSize="28" 
+                       FontWeight="Medium"
+                       VerticalAlignment="Center"/>
+
+            <Button Margin="30,0,0,0" 
+                    Style="{StaticResource MaterialDesignRaisedButton}"
+                    Click="AddSessionButton_Click">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Plus" Margin="0,0,8,0"/>
+                    <TextBlock Text="Добавить сеанс"/>
+                </StackPanel>
+            </Button>
+
+            <Button Margin="10,0,0,0" 
+                    Style="{StaticResource MaterialDesignRaisedButton}"
+                    Background="#D32F2F"
+                    Foreground="White"
+                    Click="DeleteSessionButton_Click">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Delete" Margin="0,0,8,0"/>
+                    <TextBlock Text="Удалить сеанс"/>
+                </StackPanel>
+            </Button>
+
+            <TextBox x:Name="SearchSessionBox" 
+                     Width="320" 
+                     Margin="40,0,0,0"
+                     materialDesign:HintAssist.Hint="Поиск по фильму или залу..."
+                     TextChanged="SearchSessionBox_TextChanged"/>
+        </StackPanel>
+
+        <!-- Таблица сеансов -->
+        <DataGrid x:Name="SessionsDataGrid" 
+                  Grid.Row="1"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  SelectionMode="Single"
+                  materialDesign:DataGridAssist.CellPadding="8"
+                  MouseDoubleClick="SessionsDataGrid_MouseDoubleClick">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Дата и время" 
+                                    Binding="{Binding StartDateTime, StringFormat={}{0:dd.MM.yyyy HH:mm}}" 
+                                    Width="180"/>
+                <DataGridTextColumn Header="Фильм" 
+                                    Binding="{Binding Film.Title}" 
+                                    Width="280"/>
+                <DataGridTextColumn Header="Зал" 
+                                    Binding="{Binding Hall.HallNumber}" 
+                                    Width="100"/>
+                <DataGridTextColumn Header="Базовая цена" 
+                                    Binding="{Binding BasePrice, StringFormat={}{0} руб.}" 
+                                    Width="130"/>
+                <DataGridTextColumn Header="Свободно мест" 
+                                    Binding="{Binding AvailableSeats}" 
+                                    Width="120"/>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Page>

@@ -10,31 +10,46 @@ namespace CinemaSystem.Data
         public DbSet<Director> Directors { get; set; }
         public DbSet<Actor> Actors { get; set; }
         public DbSet<FilmActor> FilmActors { get; set; }
+        public DbSet<Hall> Halls { get; set; }
+        public DbSet<Session> Sessions { get; set; }
+
+        private static string DbPath = System.IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "CinemaSystem",
+            "cinema.db");
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=cinema.db");
+            var directory = System.IO.Path.GetDirectoryName(DbPath);
+            if (!System.IO.Directory.Exists(directory))
+            {
+                System.IO.Directory.CreateDirectory(directory);
+            }
+
+            optionsBuilder.UseSqlite($"Data Source={DbPath}");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Many-to-Many связь
             modelBuilder.Entity<FilmActor>()
                 .HasKey(fa => new { fa.FilmId, fa.ActorId });
 
-            modelBuilder.Entity<FilmActor>()
-                .HasOne(fa => fa.Film)
-                .WithMany(f => f.FilmActors)
-                .HasForeignKey(fa => fa.FilmId);
+            modelBuilder.Entity<Session>()
+                .HasOne(s => s.Film)
+                .WithMany(f => f.Sessions)
+                .HasForeignKey(s => s.FilmId);
 
-            modelBuilder.Entity<FilmActor>()
-                .HasOne(fa => fa.Actor)
-                .WithMany(a => a.FilmActors)
-                .HasForeignKey(fa => fa.ActorId);
+            modelBuilder.Entity<Session>()
+                .HasOne(s => s.Hall)
+                .WithMany(h => h.Sessions)
+                .HasForeignKey(s => s.HallId);
 
-            // Индексы для быстрого поиска
-            modelBuilder.Entity<Film>().HasIndex(f => f.Title);
-            modelBuilder.Entity<Film>().HasIndex(f => f.ReleaseYear);
+            modelBuilder.Entity<Session>().HasIndex(s => s.StartDateTime);
+            modelBuilder.Entity<Hall>().HasIndex(h => h.HallNumber);
+
+            // Добавляем индексы для предотвращения дублирования
+            modelBuilder.Entity<Genre>().HasIndex(g => g.Name).IsUnique();
+            modelBuilder.Entity<Director>().HasIndex(d => d.FullName).IsUnique();
         }
     }
 }

@@ -28,5 +28,6 @@ namespace CinemaSystem.Models
 
         // Many-to-many с актёрами
         public List<FilmActor> FilmActors { get; set; } = new();
+        public List<Session> Sessions { get; set; } = new List<Session>();
     }
 }

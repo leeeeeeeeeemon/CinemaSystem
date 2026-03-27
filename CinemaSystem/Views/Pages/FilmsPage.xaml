@@ -30,6 +30,32 @@
                 </StackPanel>
             </Button>
 
+            <Button Margin="10,0,0,0" 
+            Style="{StaticResource MaterialDesignRaisedButton}"
+            Background="#D32F2F"
+            Foreground="White"
+            materialDesign:ButtonAssist.CornerRadius="8"
+            Click="DeleteFilmButton_Click">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Delete" Margin="0,0,8,0"/>
+                    <TextBlock Text="Удалить"/>
+                </StackPanel>
+            </Button>
+
+            <!-- Кнопка Архив -->
+            <Button x:Name="btnArchive" 
+            Margin="10,0,0,0" 
+            Style="{StaticResource MaterialDesignRaisedButton}"
+            Background="#455A64"
+            Foreground="White"
+            materialDesign:ButtonAssist.CornerRadius="8"
+            Click="ArchiveButton_Click">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Archive" Margin="0,0,8,0"/>
+                    <TextBlock x:Name="ArchiveButtonText" Text="Показать архив"/>
+                </StackPanel>
+            </Button>
+            
             <TextBox x:Name="SearchBox" 
                      Width="300" 
                      Margin="40,0,0,0"

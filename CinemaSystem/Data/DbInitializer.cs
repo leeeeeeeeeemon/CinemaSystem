@@ -7,52 +7,67 @@ namespace CinemaSystem.Data
     {
         public static void Initialize(CinemaDbContext context)
         {
-            context.Database.EnsureCreated();   // создаёт базу, если её нет
+            // Удаляем существующую базу данных, если нужно начать с чистого листа
+            //context.Database.EnsureDeleted(); // Осторожно! Удалит все данные
 
-            // Если жанры уже есть — выходим
-            if (context.Genres.Any()) return;
+            // Создаем базу данных и таблицы, если их нет
+            context.Database.EnsureCreated();
 
-            // Заполняем справочники
-            var genres = new[]
+            // === Кинозалы ===
+            if (!context.Halls.Any())
             {
-                new Genre { Name = "Фантастика" },
-                new Genre { Name = "Драма" },
-                new Genre { Name = "Комедия" },
-                new Genre { Name = "Боевик" },
-                new Genre { Name = "Ужасы" },
-                new Genre { Name = "Триллер" },
-                new Genre { Name = "Приключения" }
-            };
-            context.Genres.AddRange(genres);
+                context.Halls.AddRange(
+                    new Hall { HallNumber = 1, Capacity = 150, Description = "Большой зал, Dolby Atmos" },
+                    new Hall { HallNumber = 2, Capacity = 120, Description = "Средний зал" },
+                    new Hall { HallNumber = 3, Capacity = 80, Description = "Малый VIP-зал" },
+                    new Hall { HallNumber = 4, Capacity = 200, Description = "Главный зал" }
+                );
+                context.SaveChanges();
+            }
 
-            var directors = new[]
+            // === Жанры ===
+            if (!context.Genres.Any())
             {
-                new Director { FullName = "Дени Вильнёв" },
-                new Director { FullName = "Кристофер Нолан" },
-                new Director { FullName = "Грета Гервиг" },
-                new Director { FullName = "Джеймс Кэмерон" },
-                new Director { FullName = "Квентин Тарантино" }
-            };
-            context.Directors.AddRange(directors);
+                context.Genres.AddRange(
+                    new Genre { Name = "Фантастика" },
+                    new Genre { Name = "Драма" },
+                    new Genre { Name = "Комедия" },
+                    new Genre { Name = "Боевик" },
+                    new Genre { Name = "Ужасы" }
+                );
+                context.SaveChanges();
+            }
 
-            context.SaveChanges();
-
-            // Пример одного фильма для теста
-            var duneGenre = context.Genres.First(g => g.Name == "Фантастика");
-            var villeneuve = context.Directors.First(d => d.FullName == "Дени Вильнёв");
-
-            var testFilm = new Film
+            // === Режиссёры ===
+            if (!context.Directors.Any())
             {
-                Title = "Дюна: Часть вторая",
-                GenreId = duneGenre.Id,
-                DirectorId = villeneuve.Id,
-                ReleaseYear = 2024,
-                DurationMin = 166,
-                Announcement = "Продолжение эпической истории о войне за пустынную планету Арракис."
-            };
+                context.Directors.AddRange(
+                    new Director { FullName = "Дени Вильнёв" },
+                    new Director { FullName = "Кристофер Нолан" }
+                );
+                context.SaveChanges();
+            }
 
-            context.Films.Add(testFilm);
-            context.SaveChanges();
+            // === Пример фильма ===
+            if (!context.Films.Any())
+            {
+                var genre = context.Genres.FirstOrDefault(g => g.Name == "Фантастика");
+                var director = context.Directors.FirstOrDefault();
+
+                if (genre != null && director != null)
+                {
+                    context.Films.Add(new Film
+                    {
+                        Title = "Дюна: Часть вторая",
+                        GenreId = genre.Id,
+                        DirectorId = director.Id,
+                        ReleaseYear = 2024,
+                        DurationMin = 166,
+                        Announcement = "Продолжение эпической саги."
+                    });
+                    context.SaveChanges();
+                }
+            }
         }
     }
 }
