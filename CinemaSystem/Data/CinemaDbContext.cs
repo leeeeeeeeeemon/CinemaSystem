@@ -12,21 +12,12 @@ namespace CinemaSystem.Data
         public DbSet<FilmActor> FilmActors { get; set; }
         public DbSet<Hall> Halls { get; set; }
         public DbSet<Session> Sessions { get; set; }
-
-        private static string DbPath = System.IO.Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "CinemaSystem",
-            "cinema.db");
+        public DbSet<Visitor> Visitors { get; set; }     
+        public DbSet<Ticket> Tickets { get; set; }       
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var directory = System.IO.Path.GetDirectoryName(DbPath);
-            if (!System.IO.Directory.Exists(directory))
-            {
-                System.IO.Directory.CreateDirectory(directory);
-            }
-
-            optionsBuilder.UseSqlite($"Data Source={DbPath}");
+            optionsBuilder.UseSqlite("Data Source=cinema.db");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -44,12 +35,19 @@ namespace CinemaSystem.Data
                 .WithMany(h => h.Sessions)
                 .HasForeignKey(s => s.HallId);
 
+            // Связь Ticket -> Session и Ticket -> Visitor
+            modelBuilder.Entity<Ticket>()
+                .HasOne(t => t.Session)
+                .WithMany()
+                .HasForeignKey(t => t.SessionId);
+
+            modelBuilder.Entity<Ticket>()
+                .HasOne(t => t.Visitor)
+                .WithMany()
+                .HasForeignKey(t => t.VisitorId);
+
             modelBuilder.Entity<Session>().HasIndex(s => s.StartDateTime);
             modelBuilder.Entity<Hall>().HasIndex(h => h.HallNumber);
-
-            // Добавляем индексы для предотвращения дублирования
-            modelBuilder.Entity<Genre>().HasIndex(g => g.Name).IsUnique();
-            modelBuilder.Entity<Director>().HasIndex(d => d.FullName).IsUnique();
         }
     }
 }

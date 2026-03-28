@@ -39,7 +39,7 @@
             <TextBox x:Name="txtBasePrice" Margin="10"
                      materialDesign:HintAssist.Hint="Базовая цена (руб) *"
                      Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                     PreviewTextInput="NumberValidationTextBox"/>
+                     />
         </StackPanel>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,30,0,0">

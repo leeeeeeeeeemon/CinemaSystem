@@ -1,28 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using CinemaSystem.Models;
+using CinemaSystem.Data;
+using Microsoft.EntityFrameworkCore;
 
-namespace CinemaSystem.Pages
+namespace CinemaSystem.Views.Pages
 {
-    /// <summary>
-    /// Логика взаимодействия для ReportsPage.xaml
-    /// </summary>
     public partial class ReportsPage : Page
     {
         public ReportsPage()
         {
             InitializeComponent();
+            LoadTickets();
+        }
+
+        private void LoadTickets()
+        {
+            using (var db = new CinemaDbContext())
+            {
+                var tickets = db.Tickets
+                    .Include(t => t.Session).ThenInclude(s => s.Film)
+                    .Include(t => t.Session).ThenInclude(s => s.Hall)
+                    .Include(t => t.Visitor)
+                    .OrderByDescending(t => t.PurchaseDate)
+                    .ToList();
+
+                TicketsDataGrid.ItemsSource = tickets;
+            }
         }
     }
 }

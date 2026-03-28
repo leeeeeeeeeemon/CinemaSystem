@@ -1,14 +1,47 @@
-﻿<Page x:Class="CinemaSystem.Pages.TicketSalesPage"
+﻿<!-- Views/Pages/TicketSalesPage.xaml -->
+<Page x:Class="CinemaSystem.Views.Pages.TicketSalesPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:CinemaSystem.Pages"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="TicketSalesPage">
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      Title="Продажа билетов"
+      Background="{DynamicResource MaterialDesignPaper}">
 
-    <Grid>
-        
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,25">
+            <TextBlock Text="Продажа билетов" 
+                       FontSize="28" FontWeight="Medium"/>
+
+            <Button Margin="40,0,0,0" 
+                    Style="{StaticResource MaterialDesignRaisedButton}"
+                    Click="SellTicketButton_Click">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Ticket" Margin="0,0,8,0"/>
+                    <TextBlock Text="Продать билет"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+
+        <!-- Таблица сеансов для выбора -->
+        <DataGrid x:Name="AvailableSessionsGrid" 
+                  Grid.Row="1"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  SelectionMode="Single"
+                  materialDesign:DataGridAssist.CellPadding="8"
+                  MouseDoubleClick="AvailableSessionsGrid_MouseDoubleClick">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Время" Binding="{Binding StartDateTime, StringFormat=dd.MM.yyyy HH:mm}" Width="160"/>
+                <DataGridTextColumn Header="Фильм" Binding="{Binding Film.Title}" Width="300"/>
+                <DataGridTextColumn Header="Зал" Binding="{Binding Hall.HallNumber}" Width="80"/>
+                <DataGridTextColumn Header="Цена" Binding="{Binding BasePrice, StringFormat={}{0} руб.}" Width="100"/>
+                <DataGridTextColumn Header="Свободно" Binding="{Binding AvailableSeats}" Width="90"/>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Page>

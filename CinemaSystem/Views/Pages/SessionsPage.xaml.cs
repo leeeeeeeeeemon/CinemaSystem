@@ -17,10 +17,13 @@ namespace CinemaSystem.Views.Pages
         public SessionsPage()
         {
             InitializeComponent();
+
+            // Инициализация базы данных
             using (var db = new CinemaDbContext())
             {
-                DbInitializer.Initialize(db);   // инициализация справочников и тестовых данных
+                DbInitializer.Initialize(db);
             }
+
             LoadSessionsFromDatabase();
         }
 
@@ -39,21 +42,19 @@ namespace CinemaSystem.Views.Pages
             }
         }
 
+        // ==================== Добавление сеанса ====================
         private void AddSessionButton_Click(object sender, RoutedEventArgs e)
         {
-            var addSessionWindow = new AddEditSessionWindow();
-
-            if (addSessionWindow.ShowDialog() == true)
+            var window = new AddEditSessionWindow();
+            if (window.ShowDialog() == true)
             {
-                var newSession = addSessionWindow.GetSession();
+                var newSession = window.GetSession();
 
                 using (var db = new CinemaDbContext())
                 {
-                    var film = db.Films.Find(newSession.FilmId);
-                    var hall = db.Halls.Find(newSession.HallId);
-
-                    if (film != null) newSession.Film = film;
-                    if (hall != null) newSession.Hall = hall;
+                    // Привязываем существующие объекты
+                    newSession.Film = db.Films.Find(newSession.FilmId);
+                    newSession.Hall = db.Halls.Find(newSession.HallId);
 
                     db.Sessions.Add(newSession);
                     db.SaveChanges();
@@ -61,12 +62,14 @@ namespace CinemaSystem.Views.Pages
 
                 LoadSessionsFromDatabase();
 
-                MessageBox.Show($"Сеанс успешно добавлен!\nФильм: {newSession.Film.Title}\n" +
+                MessageBox.Show($"Сеанс успешно добавлен!\n" +
+                                $"Фильм: {newSession.Film.Title}\n" +
                                 $"Время: {newSession.StartDateTime:dd.MM.yyyy HH:mm}",
                                 "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
+        // ==================== Удаление сеанса ====================
         private void DeleteSessionButton_Click(object sender, RoutedEventArgs e)
         {
             if (SessionsDataGrid.SelectedItem is not Session selectedSession)
@@ -77,9 +80,9 @@ namespace CinemaSystem.Views.Pages
             }
 
             var result = MessageBox.Show(
-                $"Перенести в архив сеанс фильма «{selectedSession.Film.Title}»\n" +
-                $"{selectedSession.StartDateTime:dd.MM.yyyy HH:mm}?",
-                "Подтверждение",
+                $"Перенести в архив сеанс фильма:\n«{selectedSession.Film.Title}»\n" +
+                $"{selectedSession.StartDateTime:dd.MM.yyyy HH:mm} ?",
+                "Подтверждение удаления",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
 
@@ -96,8 +99,22 @@ namespace CinemaSystem.Views.Pages
             }
 
             LoadSessionsFromDatabase();
+            MessageBox.Show("Сеанс перенесён в архив.", "Выполнено");
         }
 
+        private void SessionsDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (SessionsDataGrid.SelectedItem is Session selectedSession)
+            {
+                var window = new AddEditSessionWindow(selectedSession);
+                if (window.ShowDialog() == true)
+                {
+                    LoadSessionsFromDatabase();
+                }
+            }
+        }
+
+        // ==================== Поиск ====================
         private void SearchSessionBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             string filter = SearchSessionBox.Text?.ToLower() ?? "";
@@ -110,13 +127,5 @@ namespace CinemaSystem.Views.Pages
             SessionsDataGrid.ItemsSource = filtered;
         }
 
-        private void SessionsDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (SessionsDataGrid.SelectedItem is Session selectedSession)
-            {
-                MessageBox.Show("Редактирование сеанса будет реализовано позже.", "Информация");
-                // TODO: позже вызовем AddEditSessionWindow в режиме редактирования
-            }
-        }
     }
 }

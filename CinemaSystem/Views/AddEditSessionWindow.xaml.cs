@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using CinemaSystem.Models;
@@ -8,15 +9,35 @@ namespace CinemaSystem.Views
 {
     public partial class AddEditSessionWindow : Window
     {
-        private readonly Session _session = new Session();
+        private readonly Session _session;
+        private readonly bool _isEditMode;
 
-        public AddEditSessionWindow()
+        public AddEditSessionWindow(Session? sessionToEdit = null)
         {
             InitializeComponent();
-            LoadData();
+
+            if (sessionToEdit != null)
+            {
+                _session = sessionToEdit;
+                _isEditMode = true;
+                Title = "Редактирование сеанса";
+            }
+            else
+            {
+                _session = new Session();
+                _isEditMode = false;
+                Title = "Добавление сеанса";
+            }
+
+            LoadComboBoxes();
+
+            if (_isEditMode)
+            {
+                LoadEditData();
+            }
         }
 
-        private void LoadData()
+        private void LoadComboBoxes()
         {
             using (var db = new CinemaDbContext())
             {
@@ -25,9 +46,23 @@ namespace CinemaSystem.Views
             }
         }
 
+        private void LoadEditData()
+        {
+            // Явно проверяем, что данные есть
+            if (_session.Film != null)
+                cmbFilm.SelectedItem = _session.Film;
+
+            if (_session.Hall != null)
+                cmbHall.SelectedItem = _session.Hall;
+
+            dpDate.SelectedDate = _session.StartDateTime.Date;
+            tpTime.SelectedTime = _session.StartDateTime;   // передаём полный DateTime
+
+            txtBasePrice.Text = _session.BasePrice.ToString("F0");
+        }
+
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            // Логический контроль ввода
             if (cmbFilm.SelectedItem is not Film selectedFilm)
             {
                 MessageBox.Show("Выберите фильм!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -42,38 +77,29 @@ namespace CinemaSystem.Views
                 return;
             }
 
-            if (dpDate.SelectedDate == null)
+            if (dpDate.SelectedDate == null || tpTime.SelectedTime == null)
             {
-                MessageBox.Show("Выберите дату сеанса!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                dpDate.Focus();
-                return;
-            }
-
-            if (tpTime.SelectedTime == null)
-            {
-                MessageBox.Show("Выберите время начала сеанса!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                tpTime.Focus();
+                MessageBox.Show("Выберите дату и время сеанса!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             if (!decimal.TryParse(txtBasePrice.Text, out decimal price) || price <= 0)
             {
-                MessageBox.Show("Укажите корректную базовую цену (больше 0)!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Укажите корректную цену билета!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 txtBasePrice.Focus();
                 return;
             }
 
-            // Формируем дату и время сеанса
-            DateTime datePart = dpDate.SelectedDate.Value.Date;
-            DateTime timePart = tpTime.SelectedTime.Value;
-
+            // Заполняем данные
             _session.FilmId = selectedFilm.Id;
             _session.Film = selectedFilm;
             _session.HallId = selectedHall.Id;
             _session.Hall = selectedHall;
-            _session.StartDateTime = datePart.Add(timePart.TimeOfDay);   
+            _session.StartDateTime = dpDate.SelectedDate.Value.Date.Add(tpTime.SelectedTime.Value.TimeOfDay);
             _session.BasePrice = price;
-            _session.AvailableSeats = selectedHall.Capacity;
+
+            if (_isEditMode == false)
+                _session.AvailableSeats = selectedHall.Capacity;
 
             DialogResult = true;
             Close();
@@ -89,11 +115,6 @@ namespace CinemaSystem.Views
         {
             if (e.Key == Key.Escape)
                 Close();
-        }
-
-        private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
-        {
-            e.Handled = !char.IsDigit(e.Text[0]);
         }
 
         public Session GetSession() => _session;
