@@ -1,0 +1,49 @@
+﻿<!-- Views/AddEditHallWindow.xaml -->
+<Window x:Class="CinemaSystem.Views.AddEditHallWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="Кинозал"
+        Height="420" Width="420"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource MaterialDesignPaper}">
+
+    <Grid Margin="24">
+        <StackPanel>
+            <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}" 
+                       FontSize="22" FontWeight="Medium" Margin="0,0,0,20"/>
+
+            <TextBox x:Name="txtHallNumber" 
+                     materialDesign:HintAssist.Hint="Номер зала *"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     Margin="0,0,0,16"
+                     PreviewTextInput="NumberValidationTextBox"/>
+
+            <TextBox x:Name="txtCapacity" 
+                     materialDesign:HintAssist.Hint="Вместимость (кол-во мест) *"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     Margin="0,0,0,16"
+                     PreviewTextInput="NumberValidationTextBox"/>
+
+            <TextBox x:Name="txtDescription" 
+                     materialDesign:HintAssist.Hint="Описание зала"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     TextWrapping="Wrap"
+                     Height="100"
+                     AcceptsReturn="True"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,30,0,0">
+                <Button Content="Отмена" 
+                        Style="{StaticResource MaterialDesignFlatButton}"
+                        Margin="0,0,12,0"
+                        Click="CancelButton_Click"
+                        IsCancel="True"/>
+
+                <Button Content="Сохранить" 
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Click="SaveButton_Click"
+                        IsDefault="True"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -49,12 +49,16 @@ namespace CinemaSystem.Views.Pages
             if (window.ShowDialog() == true)
             {
                 var newSession = window.GetSession();
-
+                string filmTitle;
                 using (var db = new CinemaDbContext())
                 {
-                    // Привязываем существующие объекты
-                    newSession.Film = db.Films.Find(newSession.FilmId);
-                    newSession.Hall = db.Halls.Find(newSession.HallId);
+                    
+                    newSession.FilmId = newSession.FilmId;     // уже должен быть установлен в окне
+                    newSession.HallId = newSession.HallId;
+                    filmTitle = db.Films.FirstOrDefault(x => x.Id == newSession.FilmId).Title;
+
+                    // Сбрасываем Id, чтобы EF Core понял, что это новая запись
+                    newSession.Id = 0;
 
                     db.Sessions.Add(newSession);
                     db.SaveChanges();
@@ -63,7 +67,7 @@ namespace CinemaSystem.Views.Pages
                 LoadSessionsFromDatabase();
 
                 MessageBox.Show($"Сеанс успешно добавлен!\n" +
-                                $"Фильм: {newSession.Film.Title}\n" +
+                                $"Фильм: {filmTitle}\n" +
                                 $"Время: {newSession.StartDateTime:dd.MM.yyyy HH:mm}",
                                 "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
             }

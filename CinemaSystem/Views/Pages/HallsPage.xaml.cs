@@ -1,28 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using CinemaSystem.Models;
+using CinemaSystem.Data;
 
-namespace CinemaSystem.Pages
+namespace CinemaSystem.Views.Pages
 {
-    /// <summary>
-    /// Логика взаимодействия для HallsPage.xaml
-    /// </summary>
     public partial class HallsPage : Page
     {
+        private List<Hall> _halls = new List<Hall>();
+
         public HallsPage()
         {
             InitializeComponent();
+            LoadHallsFromDatabase();
+        }
+
+        private void LoadHallsFromDatabase()
+        {
+            using (var db = new CinemaDbContext())
+            {
+                _halls = db.Halls
+                    .OrderBy(h => h.HallNumber)
+                    .ToList();
+
+                HallsDataGrid.ItemsSource = _halls;
+            }
+        }
+
+        private void AddHallButton_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new AddEditHallWindow();
+            if (window.ShowDialog() == true)
+            {
+                LoadHallsFromDatabase();
+            }
+        }
+
+        private void HallsDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (HallsDataGrid.SelectedItem is Hall selectedHall)
+            {
+                var window = new AddEditHallWindow(selectedHall);
+                if (window.ShowDialog() == true)
+                {
+                    LoadHallsFromDatabase();
+                }
+            }
         }
     }
 }

@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              StartupUri="Views/SplashScreen.xaml">
-    <!-- поменяй на MainWindow.xaml, если заставки ещё нет -->
+    
 
     <Application.Resources>
         <ResourceDictionary>
@@ -12,7 +12,7 @@
                 <!-- Цветовая тема  -->
                 <materialDesign:BundledTheme 
                     BaseTheme="Light"
-                    PrimaryColor="Pink"
+                    PrimaryColor="Indigo"
                     SecondaryColor="Lime" />
 
                 <!-- Главный файл стилей -->

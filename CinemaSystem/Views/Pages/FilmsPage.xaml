@@ -14,23 +14,24 @@
         </Grid.RowDefinitions>
 
         <!-- Заголовок и кнопки действий -->
+        <!-- Заголовок и кнопки действий -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
-            <TextBlock Text="База фильмов" 
-                       FontSize="28" 
-                       FontWeight="Medium"
-                       VerticalAlignment="Center"/>
+            <TextBlock Text="База фильмов"
+               FontSize="28"
+               FontWeight="Medium"
+               VerticalAlignment="Center"/>
 
-            <Button Margin="30,0,0,0" 
-                    Style="{StaticResource MaterialDesignRaisedButton}"
-                    materialDesign:ButtonAssist.CornerRadius="8"
-                    Click="AddFilmButton_Click">
+            <Button Margin="30,0,0,0"
+            Style="{StaticResource MaterialDesignRaisedButton}"
+            materialDesign:ButtonAssist.CornerRadius="8"
+            Click="AddFilmButton_Click">
                 <StackPanel Orientation="Horizontal">
                     <materialDesign:PackIcon Kind="Plus" Margin="0,0,8,0"/>
                     <TextBlock Text="Добавить фильм"/>
                 </StackPanel>
             </Button>
 
-            <Button Margin="10,0,0,0" 
+            <Button Margin="10,0,0,0"
             Style="{StaticResource MaterialDesignRaisedButton}"
             Background="#D32F2F"
             Foreground="White"
@@ -43,8 +44,8 @@
             </Button>
 
             <!-- Кнопка Архив -->
-            <Button x:Name="btnArchive" 
-            Margin="10,0,0,0" 
+            <Button x:Name="btnArchive"
+            Margin="10,0,0,0"
             Style="{StaticResource MaterialDesignRaisedButton}"
             Background="#455A64"
             Foreground="White"
@@ -55,12 +56,23 @@
                     <TextBlock x:Name="ArchiveButtonText" Text="Показать архив"/>
                 </StackPanel>
             </Button>
-            
-            <TextBox x:Name="SearchBox" 
-                     Width="300" 
-                     Margin="40,0,0,0"
-                     materialDesign:HintAssist.Hint="Поиск по названию, жанру или режиссёру..."
-                     TextChanged="SearchBox_TextChanged"/>
+
+            <!-- Фильтр по жанру -->
+            <ComboBox x:Name="cmbGenreFilter"
+              Width="180"
+              Margin="40,0,0,0"
+              materialDesign:HintAssist.Hint="Жанр"
+              Style="{StaticResource MaterialDesignOutlinedComboBox}"
+              SelectionChanged="cmbGenreFilter_SelectionChanged">
+                <ComboBoxItem Content="Все жанры" IsSelected="True"/>
+            </ComboBox>
+
+            <!-- Поиск -->
+            <TextBox x:Name="SearchBox"
+             Width="280"
+             Margin="15,0,0,0"
+             materialDesign:HintAssist.Hint="Поиск по названию или режиссёру..."
+             TextChanged="SearchBox_TextChanged"/>
         </StackPanel>
 
         <!-- Табличный вид (DataGrid) -->

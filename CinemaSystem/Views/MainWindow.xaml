@@ -7,7 +7,7 @@
         Height="720" Width="1280"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource MaterialDesignPaper}"
-        KeyDown="Window_KeyDown">
+        KeyDown="Window_KeyDown" WindowState="Maximized">
 
     <materialDesign:DrawerHost>
         <!-- Боковое меню (Drawer) -->

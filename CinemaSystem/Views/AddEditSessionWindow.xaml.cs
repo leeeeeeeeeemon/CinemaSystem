@@ -16,25 +16,15 @@ namespace CinemaSystem.Views
         {
             InitializeComponent();
 
-            if (sessionToEdit != null)
-            {
-                _session = sessionToEdit;
-                _isEditMode = true;
-                Title = "Редактирование сеанса";
-            }
-            else
-            {
-                _session = new Session();
-                _isEditMode = false;
-                Title = "Добавление сеанса";
-            }
+            _session = sessionToEdit ?? new Session();
+            _isEditMode = sessionToEdit != null;
+
+            Title = _isEditMode ? "Редактирование сеанса" : "Добавление сеанса";
 
             LoadComboBoxes();
 
             if (_isEditMode)
-            {
                 LoadEditData();
-            }
         }
 
         private void LoadComboBoxes()
@@ -48,17 +38,12 @@ namespace CinemaSystem.Views
 
         private void LoadEditData()
         {
-            // Явно проверяем, что данные есть
-            if (_session.Film != null)
-                cmbFilm.SelectedItem = _session.Film;
-
-            if (_session.Hall != null)
-                cmbHall.SelectedItem = _session.Hall;
+            cmbFilm.SelectedItem = cmbFilm.Items.Cast<Film>().FirstOrDefault(f => f.Id == _session.FilmId);
+            cmbHall.SelectedItem = cmbHall.Items.Cast<Hall>().FirstOrDefault(h => h.Id == _session.HallId);
 
             dpDate.SelectedDate = _session.StartDateTime.Date;
-            tpTime.SelectedTime = _session.StartDateTime;   // передаём полный DateTime
-
-            txtBasePrice.Text = _session.BasePrice.ToString("F0");
+            tpTime.SelectedTime = _session.StartDateTime;
+            txtBasePrice.Text = _session.BasePrice.ToString("0");
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -85,21 +70,48 @@ namespace CinemaSystem.Views
 
             if (!decimal.TryParse(txtBasePrice.Text, out decimal price) || price <= 0)
             {
-                MessageBox.Show("Укажите корректную цену билета!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Укажите корректную цену!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 txtBasePrice.Focus();
                 return;
             }
 
-            // Заполняем данные
+            // === Правильное заполнение сеанса ===
             _session.FilmId = selectedFilm.Id;
-            _session.Film = selectedFilm;
+            // НЕ присваиваем _session.Film = selectedFilm;  ← это и вызывало ошибку
             _session.HallId = selectedHall.Id;
-            _session.Hall = selectedHall;
+            // НЕ присваиваем _session.Hall = selectedHall;
             _session.StartDateTime = dpDate.SelectedDate.Value.Date.Add(tpTime.SelectedTime.Value.TimeOfDay);
             _session.BasePrice = price;
 
-            if (_isEditMode == false)
+            // Если добавляем новый сеанс — устанавливаем количество мест
+            if (!_isEditMode)
+            {
                 _session.AvailableSeats = selectedHall.Capacity;
+            }
+
+            // Сохраняем в базу
+            using (var db = new CinemaDbContext())
+            {
+                if (_isEditMode)
+                {
+                    // Редактирование
+                    var existing = db.Sessions.Find(_session.Id);
+                    if (existing != null)
+                    {
+                        existing.FilmId = _session.FilmId;
+                        existing.HallId = _session.HallId;
+                        existing.StartDateTime = _session.StartDateTime;
+                        existing.BasePrice = _session.BasePrice;
+                    }
+                }
+                else
+                {
+                    // Добавление нового
+                    //db.Sessions.Add(_session);
+                }
+
+                db.SaveChanges();
+            }
 
             DialogResult = true;
             Close();
