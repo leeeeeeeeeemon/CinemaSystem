@@ -3,33 +3,210 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-      Title="Отчёты и проданные билеты"
-      Background="{DynamicResource MaterialDesignPaper}">
+      Title="Отчёты и статистика"
+      >
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Text="Проданные билеты" 
+        <!-- Заголовок -->
+        <TextBlock Text="Отчёты и статистика продаж" 
                    FontSize="28" 
                    FontWeight="Medium" 
                    Margin="0,0,0,20"/>
 
-        <DataGrid x:Name="TicketsDataGrid" 
-                  Grid.Row="1"
-                  AutoGenerateColumns="False"
-                  IsReadOnly="True"
-                  materialDesign:DataGridAssist.CellPadding="8">
+        <!-- Карточки со статистикой -->
+        <WrapPanel Grid.Row="1" Margin="0,0,0,20">
+            <Border Background="{DynamicResource MaterialDesignCard}" 
+                    CornerRadius="8" 
+                    Padding="20" 
+                    Margin="0,0,15,0" 
+                    Width="200" 
+                    Height="100">
+                <StackPanel>
+                    <TextBlock Text="Общая выручка" 
+                               Foreground="{DynamicResource MaterialDesignBodyLight}" 
+                               FontSize="12"/>
+                    <TextBlock x:Name="TotalRevenueText" 
+                               Text="0 руб." 
+                               FontSize="24" 
+                               FontWeight="Bold" 
+                               Foreground="{DynamicResource PrimaryHueLightBrush}"/>
+                </StackPanel>
+            </Border>
 
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Дата продажи" Binding="{Binding PurchaseDate, StringFormat=dd.MM.yyyy HH:mm}" Width="160"/>
-                <DataGridTextColumn Header="Фильм" Binding="{Binding Session.Film.Title}" Width="280"/>
-                <DataGridTextColumn Header="Зал" Binding="{Binding Session.Hall.HallNumber}" Width="80"/>
-                <DataGridTextColumn Header="Посетитель" Binding="{Binding Visitor.FullName}" Width="250"/>
-                <DataGridTextColumn Header="Цена" Binding="{Binding FinalPrice, StringFormat={}{0} руб.}" Width="100"/>
-            </DataGrid.Columns>
-        </DataGrid>
+            <Border Background="{DynamicResource MaterialDesignCard}" 
+                    CornerRadius="8" 
+                    Padding="20" 
+                    Margin="0,0,15,0" 
+                    Width="200" 
+                    Height="100">
+                <StackPanel>
+                    <TextBlock Text="Продано билетов" 
+                               Foreground="{DynamicResource MaterialDesignBodyLight}" 
+                               FontSize="12"/>
+                    <TextBlock x:Name="TotalTicketsText" 
+                               Text="0" 
+                               FontSize="24" 
+                               FontWeight="Bold" 
+                               Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Background="{DynamicResource MaterialDesignCard}" 
+                    CornerRadius="8" 
+                    Padding="20" 
+                    Width="200" 
+                    Height="100">
+                <StackPanel>
+                    <TextBlock Text="Средний чек" 
+                               Foreground="{DynamicResource MaterialDesignBodyLight}" 
+                               FontSize="12"/>
+                    <TextBlock x:Name="AverageTicketText" 
+                               Text="0 руб." 
+                               FontSize="24" 
+                               FontWeight="Bold" 
+                               Foreground="{DynamicResource PrimaryHueDarkBrush}"/>
+                </StackPanel>
+            </Border>
+        </WrapPanel>
+
+        <!-- Панель фильтров -->
+        <Border Grid.Row="2" 
+                Background="{DynamicResource MaterialDesignCard}" 
+                CornerRadius="8" 
+                Padding="15" 
+                Margin="0,0,0,20">
+            <StackPanel>
+                <TextBlock Text="Фильтры" 
+                           FontWeight="SemiBold" 
+                           Margin="0,0,0,10"
+                           FontSize="14"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Период:" 
+                               Grid.Column="0" 
+                               VerticalAlignment="Center" 
+                               Margin="0,0,10,0"/>
+
+                    <DatePicker x:Name="DateFromPicker" 
+                                Grid.Column="1" 
+                                SelectedDateChanged="DateFilter_Changed">
+                        <DatePicker.Resources>
+                            <Style TargetType="DatePickerTextBox"/>
+                        </DatePicker.Resources>
+                    </DatePicker>
+
+                    <TextBlock Text="—" 
+                               Grid.Column="2" 
+                               VerticalAlignment="Center" 
+                               Margin="10,0"/>
+
+                    <DatePicker x:Name="DateToPicker" 
+                                Grid.Column="3" 
+                                SelectedDateChanged="DateFilter_Changed">
+                        <DatePicker.Resources>
+                            <Style TargetType="DatePickerTextBox"/>
+                        </DatePicker.Resources>
+                    </DatePicker>
+
+                    <ComboBox x:Name="FilmFilterComboBox" 
+                              Grid.Column="4" 
+                              Width="200" 
+                              Margin="15,0"
+                              DisplayMemberPath="Title"
+                              SelectionChanged="FilmFilter_Changed"/>
+
+                    <Button x:Name="ResetFilterButton" 
+                            Grid.Column="5"
+                            Content="Сбросить фильтры"
+                            Click="ResetFilter_Click"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Вкладки с отчетами -->
+        <TabControl Grid.Row="3">
+
+            <!-- Вкладка: Проданные билеты -->
+            <TabItem Header="Проданные билеты">
+                <DataGrid x:Name="TicketsDataGrid" 
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          Margin="0,10,0,0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Дата продажи" 
+                                            Binding="{Binding PurchaseDate, StringFormat=dd.MM.yyyy HH:mm}" 
+                                            Width="160"/>
+                        <DataGridTextColumn Header="Фильм" 
+                                            Binding="{Binding Session.Film.Title}" 
+                                            Width="280"/>
+                        <DataGridTextColumn Header="Зал" 
+                                            Binding="{Binding Session.Hall.HallNumber}" 
+                                            Width="80"/>
+                        <DataGridTextColumn Header="Посетитель" 
+                                            Binding="{Binding Visitor.FullName}" 
+                                            Width="250"/>
+                        <DataGridTextColumn Header="Цена" 
+                                            Binding="{Binding FinalPrice, StringFormat={}{0:F2} руб.}" 
+                                            Width="100"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Вкладка: Отчет по фильмам -->
+            <TabItem Header="Статистика по фильмам">
+                <DataGrid x:Name="FilmsStatsDataGrid" 
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          Margin="0,10,0,0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Фильм" 
+                                            Binding="{Binding FilmTitle}" 
+                                            Width="350"/>
+                        <DataGridTextColumn Header="Продано билетов" 
+                                            Binding="{Binding TicketsSold}" 
+                                            Width="150"/>
+                        <DataGridTextColumn Header="Выручка" 
+                                            Binding="{Binding Revenue, StringFormat={}{0:F2} руб.}" 
+                                            Width="150"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Вкладка: Ежедневная статистика -->
+            <TabItem Header="Ежедневная статистика">
+                <DataGrid x:Name="DailyStatsDataGrid" 
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          Margin="0,10,0,0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Дата" 
+                                            Binding="{Binding Date, StringFormat=dd.MM.yyyy}" 
+                                            Width="150"/>
+                        <DataGridTextColumn Header="Продано билетов" 
+                                            Binding="{Binding TicketsCount}" 
+                                            Width="150"/>
+                        <DataGridTextColumn Header="Выручка" 
+                                            Binding="{Binding Revenue, StringFormat={}{0:F2} руб.}" 
+                                            Width="150"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Page>

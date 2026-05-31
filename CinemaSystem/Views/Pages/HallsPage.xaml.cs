@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -48,6 +49,45 @@ namespace CinemaSystem.Views.Pages
                 {
                     LoadHallsFromDatabase();
                 }
+            }
+        }
+
+        private void DeleteHallButton_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.Tag is not Hall hall)
+                return;
+
+            var result = MessageBox.Show(
+                $"Удалить зал №{hall.HallNumber}?",
+                "Подтверждение удаления",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            try
+            {
+                using (var db = new CinemaDbContext())
+                {
+                    var existing = db.Halls.Find(hall.Id);
+                    if (existing != null)
+                    {
+                        db.Halls.Remove(existing);
+                        db.SaveChanges();
+                    }
+                }
+
+                LoadHallsFromDatabase();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Не удалось удалить зал №{hall.HallNumber}.\n" +
+                    "Возможно, для этого зала существуют связанные сеансы.",
+                    "Ошибка удаления",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
     }

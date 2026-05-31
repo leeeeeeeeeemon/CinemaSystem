@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Views/SplashScreen.xaml.cs
+using System;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace CinemaSystem.Views
@@ -21,7 +12,6 @@ namespace CinemaSystem.Views
         {
             InitializeComponent();
 
-            // Автоматический переход через 15 секунды
             DispatcherTimer timer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(5)
@@ -29,7 +19,7 @@ namespace CinemaSystem.Views
             timer.Tick += (s, e) =>
             {
                 timer.Stop();
-                OpenMainWindow();
+                OpenLoginWindow();
             };
             timer.Start();
         }
@@ -38,15 +28,15 @@ namespace CinemaSystem.Views
         {
             if (e.Key == Key.Escape)
             {
-                OpenMainWindow();
+                OpenLoginWindow();
             }
         }
 
-        private void OpenMainWindow()
+        private void OpenLoginWindow()
         {
-            var mainWindow = new MainWindow();
-            mainWindow.Show();
-            this.Close();
+            var loginWindow = new LoginWindow();
+            loginWindow.Show();
+            Close();
         }
     }
 }

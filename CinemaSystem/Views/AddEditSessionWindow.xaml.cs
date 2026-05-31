@@ -40,7 +40,6 @@ namespace CinemaSystem.Views
         {
             cmbFilm.SelectedItem = cmbFilm.Items.Cast<Film>().FirstOrDefault(f => f.Id == _session.FilmId);
             cmbHall.SelectedItem = cmbHall.Items.Cast<Hall>().FirstOrDefault(h => h.Id == _session.HallId);
-
             dpDate.SelectedDate = _session.StartDateTime.Date;
             tpTime.SelectedTime = _session.StartDateTime;
             txtBasePrice.Text = _session.BasePrice.ToString("0");
@@ -68,33 +67,40 @@ namespace CinemaSystem.Views
                 return;
             }
 
-            if (!decimal.TryParse(txtBasePrice.Text, out decimal price) || price <= 0)
+            DateTime selectedDateTime = dpDate.SelectedDate.Value.Date.Add(tpTime.SelectedTime.Value.TimeOfDay);
+
+            if (selectedDateTime < DateTime.Now)
             {
-                MessageBox.Show("Укажите корректную цену!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                txtBasePrice.Focus();
+                MessageBox.Show("Нельзя создать сеанс в прошедшую дату и время!",
+                                "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            // === Правильное заполнение сеанса ===
-            _session.FilmId = selectedFilm.Id;
-            // НЕ присваиваем _session.Film = selectedFilm;  ← это и вызывало ошибку
-            _session.HallId = selectedHall.Id;
-            // НЕ присваиваем _session.Hall = selectedHall;
-            _session.StartDateTime = dpDate.SelectedDate.Value.Date.Add(tpTime.SelectedTime.Value.TimeOfDay);
-            _session.BasePrice = price;
-
-            // Если добавляем новый сеанс — устанавливаем количество мест
-            if (!_isEditMode)
-            {
-                _session.AvailableSeats = selectedHall.Capacity;
-            }
-
-            // Сохраняем в базу
             using (var db = new CinemaDbContext())
             {
+                bool isHallOccupied = db.Sessions
+                    .Any(s => s.HallId == selectedHall.Id &&
+                              s.Id != _session.Id &&
+                              s.StartDateTime < selectedDateTime.AddMinutes(180) &&
+                              s.StartDateTime.AddMinutes(180) > selectedDateTime);
+
+                if (isHallOccupied)
+                {
+                    MessageBox.Show("В выбранном зале уже есть сеанс в это время!\nВыберите другое время или другой зал.",
+                                    "Конфликт расписания", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                _session.FilmId = selectedFilm.Id;
+                _session.HallId = selectedHall.Id;
+                _session.StartDateTime = selectedDateTime;
+                _session.BasePrice = decimal.TryParse(txtBasePrice.Text, out decimal price) ? price : 0m;
+
+                if (!_isEditMode)
+                    _session.AvailableSeats = selectedHall.Capacity;
+
                 if (_isEditMode)
                 {
-                    // Редактирование
                     var existing = db.Sessions.Find(_session.Id);
                     if (existing != null)
                     {
@@ -106,8 +112,7 @@ namespace CinemaSystem.Views
                 }
                 else
                 {
-                    // Добавление нового
-                    //db.Sessions.Add(_session);
+                    db.Sessions.Add(_session);
                 }
 
                 db.SaveChanges();

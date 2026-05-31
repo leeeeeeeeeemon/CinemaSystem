@@ -31,7 +31,13 @@ namespace CinemaSystem.Views
                 cmbVisitor.ItemsSource = db.Visitors.OrderBy(v => v.FullName).ToList();
             }
 
-            cmbQuantity.SelectedIndex = 0; // по умолчанию 1 билет
+            // Заполняем количество билетов по числу свободных мест (максимум 5)
+            int maxTickets = Math.Min(_session.AvailableSeats, 5);
+            cmbQuantity.Items.Clear();
+            for (int i = 1; i <= maxTickets; i++)
+                cmbQuantity.Items.Add(new ComboBoxItem { Content = i.ToString() });
+
+            cmbQuantity.SelectedIndex = 0;
         }
 
         private void cmbVisitor_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -93,6 +99,16 @@ namespace CinemaSystem.Views
             int points = 0;
             using (var db = new CinemaDbContext())
             {
+                // Проверяем актуальное количество мест в БД (защита от race condition)
+                var sessionInDb = db.Sessions.Find(_session.Id);
+                if (sessionInDb == null || sessionInDb.AvailableSeats < quantity)
+                {
+                    MessageBox.Show(
+                        $"Недостаточно свободных мест!\n" +
+                        $"Доступно: {sessionInDb?.AvailableSeats ?? 0} мест.",
+                        "Ошибка продажи", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
                 // Создаём билеты
                 for (int i = 0; i < quantity; i++)
                 {
@@ -108,9 +124,7 @@ namespace CinemaSystem.Views
                 }
 
                 // Уменьшаем свободные места в сеансе
-                var sessionInDb = db.Sessions.Find(_session.Id);
-                if (sessionInDb != null)
-                    sessionInDb.AvailableSeats -= quantity;
+                sessionInDb.AvailableSeats -= quantity;
 
                 // === НАЧИСЛЯЕМ БАЛЛЫ (10% от общей суммы) ===
                 int pointsToAdd = (int)(totalPrice * 0.10m);

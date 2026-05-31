@@ -10,7 +10,7 @@ namespace CinemaSystem.Views
     {
         public MainWindow()
         {
-            InitializeComponent();   
+            InitializeComponent();
 
             // Устанавливаем начальное состояние после загрузки XAML
             if (MenuListBox != null)
@@ -84,12 +84,14 @@ namespace CinemaSystem.Views
 
         private void ExitButton_Click(object sender, RoutedEventArgs e)
         {
-            if (MessageBox.Show("Вы действительно хотите выйти из программы?\nВсе несохранённые данные будут потеряны.",
+            if (MessageBox.Show("Выйти из системы и вернуться к выбору режима?",
                                 "Подтверждение выхода",
                                 MessageBoxButton.YesNo,
                                 MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
-                Application.Current.Shutdown();
+                var loginWindow = new LoginWindow();
+                loginWindow.Show();
+                Close();
             }
         }
     }

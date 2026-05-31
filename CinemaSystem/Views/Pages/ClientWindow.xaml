@@ -1,0 +1,114 @@
+<!-- Views/ClientWindow.xaml -->
+<Window x:Class="CinemaSystem.Views.ClientWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="StarLight — Расписание сеансов"
+        Height="680" Width="980"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource MaterialDesignPaper}"
+        Style="{StaticResource MaterialDesignWindow}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="64"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Шапка -->
+        <Border Grid.Row="0">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#4A148C" Offset="0"/>
+                    <GradientStop Color="#311B92" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid Margin="24,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="🎬" FontSize="22" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Text="STARLIGHT" FontSize="20" FontWeight="Black"
+                               Foreground="#FFEB3B" VerticalAlignment="Center"/>
+                    <TextBlock Text="  ·  Расписание сеансов" FontSize="15"
+                               Foreground="#CE93D8" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <Button HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource MaterialDesignFlatButton}"
+                        Foreground="#CE93D8"
+                        Click="ExitButton_Click"
+                        ToolTip="Вернуться к выбору режима">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="ExitToApp" Margin="0,0,6,0"/>
+                        <TextBlock Text="Выход"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Основной контент -->
+        <Grid Grid.Row="1" Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Поиск и фильтры -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
+                <TextBox x:Name="SearchBox"
+                         Width="300"
+                         materialDesign:HintAssist.Hint="Поиск по фильму..."
+                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         TextChanged="SearchBox_TextChanged"/>
+                <TextBlock Text="Двойной клик по сеансу — купить билет"
+                           FontSize="13"
+                           Foreground="{DynamicResource MaterialDesignBodyLight}"
+                           VerticalAlignment="Center"
+                           Margin="24,0,0,0"/>
+            </StackPanel>
+
+            <!-- Таблица доступных сеансов -->
+            <DataGrid x:Name="SessionsGrid"
+                      Grid.Row="1"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      SelectionMode="Single"
+                      materialDesign:DataGridAssist.CellPadding="10"
+                      MouseDoubleClick="SessionsGrid_MouseDoubleClick">
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Дата и время"
+                                        Binding="{Binding StartDateTime, StringFormat=dd.MM.yyyy HH:mm}"
+                                        Width="170"/>
+                    <DataGridTextColumn Header="Фильм"
+                                        Binding="{Binding Film.Title}"
+                                        Width="*"/>
+                    <DataGridTextColumn Header="Зал"
+                                        Binding="{Binding Hall.HallNumber}"
+                                        Width="80"/>
+                    <DataGridTextColumn Header="Цена"
+                                        Binding="{Binding BasePrice, StringFormat={}{0} руб.}"
+                                        Width="110"/>
+                    <DataGridTextColumn Header="Свободно мест"
+                                        Binding="{Binding AvailableSeats}"
+                                        Width="130"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- Кнопка покупки -->
+            <Button Grid.Row="2"
+                    HorizontalAlignment="Right"
+                    Margin="0,16,0,0"
+                    Style="{StaticResource MaterialDesignRaisedButton}"
+                    materialDesign:ButtonAssist.CornerRadius="8"
+                    Height="44"
+                    Click="BuyTicketButton_Click">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Ticket" Width="20" Height="20" Margin="0,0,8,0"/>
+                    <TextBlock Text="Купить билет на выбранный сеанс" FontSize="14"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+    </Grid>
+</Window>

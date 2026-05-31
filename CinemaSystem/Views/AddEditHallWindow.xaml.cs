@@ -55,6 +55,20 @@ namespace CinemaSystem.Views
 
             using (var db = new CinemaDbContext())
             {
+                // Проверяем дубликат: ищем зал с таким же номером,
+                // исключая текущий зал при редактировании
+                bool isDuplicate = db.Halls.Any(h =>
+                    h.HallNumber == hallNumber &&
+                    h.Id != _hall.Id);
+
+                if (isDuplicate)
+                {
+                    MessageBox.Show($"Зал с номером {hallNumber} уже существует!",
+                                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    txtHallNumber.Focus();
+                    return;
+                }
+
                 if (_isEditMode)
                 {
                     var existing = db.Halls.Find(_hall.Id);

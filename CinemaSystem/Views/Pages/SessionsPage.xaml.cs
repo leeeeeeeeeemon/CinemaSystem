@@ -52,7 +52,7 @@ namespace CinemaSystem.Views.Pages
                 string filmTitle;
                 using (var db = new CinemaDbContext())
                 {
-                    
+
                     newSession.FilmId = newSession.FilmId;     // уже должен быть установлен в окне
                     newSession.HallId = newSession.HallId;
                     filmTitle = db.Films.FirstOrDefault(x => x.Id == newSession.FilmId).Title;
